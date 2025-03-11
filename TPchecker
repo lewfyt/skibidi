@@ -1,0 +1,131 @@
+local TS = game:GetService("TeleportService")
+local PL = game:GetService("Players")
+local LP = PL.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local TWS = game:GetService("TweenService")
+
+-- Generate random GUI name
+local guiName = "Gui_" .. math.random(100000, 999999)
+
+-- Remove existing GUI if already present
+if LP:FindFirstChild("PlayerGui") then
+    for _, v in pairs(LP.PlayerGui:GetChildren()) do
+        if v:IsA("ScreenGui") and v.Name:match("Gui_") then
+            v:Destroy()
+        end
+    end
+end
+
+local SG = Instance.new("ScreenGui")
+SG.Name = guiName
+local FR = Instance.new("Frame")
+local SF = Instance.new("ScrollingFrame")
+local UL = Instance.new("UIListLayout")
+
+-- Setup GUI
+SG.Parent = LP:WaitForChild("PlayerGui")
+FR.Parent = SG
+FR.Size = UDim2.new(0, 200, 0, 300)
+FR.Position = UDim2.new(0.4, 0, 0.2, 0)
+FR.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+FR.Active = true
+
+-- Draggable Functionality
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    FR.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+FR.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = FR.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+FR.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
+    end
+end)
+
+-- Hide UI on startup to avoid detection
+FR.Visible = false
+wait(math.random(2, 5))
+FR.Visible = true
+
+-- Setup Scrollable Frame
+SF.Parent = FR
+SF.Size = UDim2.new(1, 0, 1, 0)
+SF.CanvasSize = UDim2.new(0, 0, 2, 0)
+SF.ScrollBarThickness = 5
+SF.BackgroundTransparency = 1
+
+UL.Parent = SF
+UL.FillDirection = Enum.FillDirection.Vertical
+UL.Padding = UDim.new(0, 5)
+UL.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Function to find in-game teleport locations
+local function searchTP()
+    local tpPoints = {}
+    for _, p in pairs(workspace:GetDescendants()) do
+        if p:IsA("Part") or p:IsA("MeshPart") then
+            if p:GetAttribute("TPPos") then
+                table.insert(tpPoints, p)
+            elseif p:FindFirstChild("TP") then
+                table.insert(tpPoints, p)
+            end
+        end
+    end
+    return tpPoints
+end
+
+-- Function to teleport player
+local function goToTP(dst)
+    if dst and dst:IsA("Part") then
+        LP.Character:SetPrimaryPartCFrame(dst.CFrame + Vector3.new(0, 3, 0))
+    end
+end
+
+-- Populate the GUI with teleport options
+local foundTP = searchTP()
+if #foundTP > 0 then
+    for i, pt in ipairs(foundTP) do
+        local btn = Instance.new("TextButton")
+        btn.Parent = SF
+        btn.Size = UDim2.new(1, 0, 0, 30)
+        btn.Text = "TP" .. i
+        btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.MouseButton1Click:Connect(function()
+            goToTP(pt)
+        end)
+    end
+    SF.CanvasSize = UDim2.new(0, 0, 0, #foundTP * 35)
+else
+    local noTP = Instance.new("TextLabel")
+    noTP.Parent = SF
+    noTP.Size = UDim2.new(1, 0, 0, 30)
+    noTP.Text = "No TP Points"
+    noTP.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    noTP.TextColor3 = Color3.fromRGB(255, 255, 255)
+end
