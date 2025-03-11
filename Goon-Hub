@@ -1,0 +1,179 @@
+--// Roblox Script Hub with Smooth UI and Draggable "😭" Button \\--
+
+-- Creating the ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game:GetService("CoreGui")
+
+-- Creating the Main Frame (Hub UI)
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 260, 0, 350)
+MainFrame.Position = UDim2.new(0.5, -130, 1, 0)  -- Start hidden
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+-- Creating the Draggable Button ("😭")
+local DragButton = Instance.new("TextButton")
+DragButton.Parent = ScreenGui
+DragButton.Size = UDim2.new(0, 50, 0, 50)
+DragButton.Position = UDim2.new(0.1, 0, 0.1, 0)  -- Start position
+DragButton.Text = "😭"
+DragButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+DragButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DragButton.TextScaled = true
+DragButton.TextSize = 30
+DragButton.TextWrapped = true
+DragButton.Font = Enum.Font.GothamBold
+
+-- Dragging functionality
+local dragging, dragInput, dragStart, startPos
+
+DragButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = DragButton.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+DragButton.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        DragButton.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Toggle Hub Visibility when Clicking the Crying Button
+local HubOpen = false
+DragButton.MouseButton1Click:Connect(function()
+    HubOpen = not HubOpen
+    if HubOpen then
+        MainFrame:TweenPosition(UDim2.new(0.5, -130, 0.5, -175), "Out", "Quad", 0.3, true)
+    else
+        MainFrame:TweenPosition(UDim2.new(0.5, -130, 1, 0), "Out", "Quad", 0.3, true)
+    end
+end)
+
+-- Hub Title
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = MainFrame
+TitleLabel.Size = UDim2.new(1, -10, 0, 40)
+TitleLabel.Position = UDim2.new(0, 5, 0, 5)
+TitleLabel.Text = "🔥 Script Hub 🔥"
+TitleLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextSize = 18
+TitleLabel.TextScaled = true
+TitleLabel.TextWrapped = true
+
+-- Script Execution System
+local activeScripts = {}
+local scripts = {
+    FakeLag = function()
+        activeScripts["FakeLag"] = loadstring(game:HttpGet("https://raw.githubusercontent.com/Biem6ondo/FAKELAG/refs/heads/main/Fakelag"))()
+    end,
+    Jerky = function()
+        activeScripts["Jerky"] = loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))()
+    end,
+    Sirius = function()
+        activeScripts["Sirius"] = loadstring(game:HttpGet('https://sirius.menu/sirius'))()
+    end,
+    InfiniteYield = function()
+        activeScripts["InfiniteYield"] = loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+    end,
+    Macron = function()
+        activeScripts["Macron"] = loadstring(game:HttpGet("https://raw.githubusercontent.com/svanta/MacronHub/refs/heads/main/OrionVersionKey"))()
+    end,
+    TPcheck = function()
+        activeScripts["TPcheck"] = loadstring(game:HttpGet('https://raw.githubusercontent.com/lewfyt/skibidi/refs/heads/main/TPchecker'))()
+    end,
+    RobloxMod = function()
+        activeScripts["RobloxMod"] = loadstring(game:HttpGet("https://raw.githubusercontent.com/icaropng840/SDK/refs/heads/main/SDK.md", true))()
+    end
+}
+
+-- Creating Script Buttons
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = MainFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+for name, func in pairs(scripts) do
+    local ButtonFrame = Instance.new("Frame")
+    ButtonFrame.Parent = MainFrame
+    ButtonFrame.Size = UDim2.new(1, -10, 0, 40)
+    ButtonFrame.BackgroundTransparency = 1
+
+    local Button = Instance.new("TextButton")
+    Button.Parent = ButtonFrame
+    Button.Size = UDim2.new(0.7, 0, 1, 0)
+    Button.Text = "Execute " .. name
+    Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 14
+    Button.MouseButton1Click:Connect(function()
+        if not activeScripts[name] then
+            func()
+        end
+    end)
+
+    local UnloadButton = Instance.new("TextButton")
+    UnloadButton.Parent = ButtonFrame
+    UnloadButton.Size = UDim2.new(0.25, 0, 1, 0)
+    UnloadButton.Position = UDim2.new(0.75, 0, 0, 0)
+    UnloadButton.Text = "Unload"
+    UnloadButton.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    UnloadButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    UnloadButton.Font = Enum.Font.GothamBold
+    UnloadButton.TextSize = 14
+    UnloadButton.MouseButton1Click:Connect(function()
+        if activeScripts[name] then
+            activeScripts[name] = nil
+            warn(name .. " script has been unloaded.")
+        end
+    end)
+end
+
+-- Display Username
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Parent = MainFrame
+TextLabel.Size = UDim2.new(1, -10, 0, 40)
+TextLabel.Text = "Demolka535_on_top"
+TextLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.Font = Enum.Font.GothamBold
+TextLabel.TextSize = 14
+TextLabel.TextScaled = true
+TextLabel.TextWrapped = true
+
+-- Copy Button
+local CopyButton = Instance.new("TextButton")
+CopyButton.Parent = MainFrame
+CopyButton.Size = UDim2.new(1, -10, 0, 40)
+CopyButton.Text = "Copy"
+CopyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CopyButton.Font = Enum.Font.GothamBold
+CopyButton.TextSize = 14
+CopyButton.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("Demolka535_on_top")
+    else
+        warn("Clipboard function not available.")
+    end
+end)
+
+-- Clean Memory
+collectgarbage()
