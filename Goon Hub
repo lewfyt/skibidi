@@ -1,4 +1,4 @@
-
+-- loadstring(game:HttpGet('https://raw.githubusercontent.com/lewfyt/skibidi/refs/heads/main/Goon-Hub'))() for my boi supermanisverycool
 -- Goon hub 2.0
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game:GetService("CoreGui")
