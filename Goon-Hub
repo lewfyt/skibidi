@@ -1,4 +1,4 @@
---// Roblox Script Hub with Smooth UI and Draggable "😭" Button \\--
+-- loadstring(game:HttpGet('https://raw.githubusercontent.com/lewfyt/skibidi/refs/heads/main/Goon-Hub'))() for my boi spiderman
 
 -- Creating the ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
